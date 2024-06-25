@@ -13,11 +13,12 @@ def main():
     token_info = exchange_authorization_code_for_tokens(CLIENT_ID, CLIENT_SECRET, authorization_code)
     print(token_info['access_token'])
     # Initiates the Strava instance
-    strava = Strava(access_token=token_info['access_token'])
+    strava = Strava(access_token=token_info['access_token'], min_date=1716677003)
     print(strava)
     
     new_data = {
-        "description": "Test de l'API de Strava !"
+        "description": "Test de l'API de Strava !",
+        "name": "Test"
     }
     strava.update_activity(id_activity='11511427976', update=new_data)
     

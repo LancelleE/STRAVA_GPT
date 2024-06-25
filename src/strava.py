@@ -94,8 +94,6 @@ class Strava:
         for key, value in output.items():
             print(f'{key} : {value}')
         
-        
-    
     def update_activity(self, id_activity, update):
         url =  f"{self.base_url}activities/{id_activity}"
         response = requests.put(url, json=update, headers=self.headers)
