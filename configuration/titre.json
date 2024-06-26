@@ -1,0 +1,19 @@
+[
+    {
+        "event": "Semi-marathon Cancale St-Malo",
+        "emoji": "🌊",
+        "event_date": "2024-08-25",
+        "distance": 21,
+        "days_before": 100,
+        "nickname": "Semi Cancale - St-Malo",
+        "activity_type": "Run"
+    },
+    {
+        "event": "Semi-marathon Boulogne-Billancourt",
+        "emoji": "🏠",
+        "event_date": "2024-11-18",
+        "distance": 21,
+        "days_before": 100,
+        "nickname": "Semi de Boulbi"
+    }
+]

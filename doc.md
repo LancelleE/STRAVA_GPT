@@ -20,6 +20,7 @@ Date: 2024-06
 - Construire la définition de description via un LLM
     - Quel modèle employer ? OpenAI ?
     - Quelles métriques donner au prompt ?
+        - Exploiter les segments, dans un autre call API.
     - Quel prompt employer ?
     - Quel ton ?
 

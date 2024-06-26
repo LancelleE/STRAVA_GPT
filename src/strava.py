@@ -1,6 +1,8 @@
 import requests
 from geopy.geocoders import Nominatim
+from dotenv import set_key
 
+# Various functions, useful in the Strava class
 def get_city_from_long_lat(latitude, longitude):
     geolocator = Nominatim(user_agent="my-app")
     location = geolocator.reverse((latitude, longitude), exactly_one=True)
@@ -27,24 +29,50 @@ def seconds_to_time(seconds):
 
     time_str = ""
     if days > 0:
-        time_str += f"{days} jour(s), "
+        time_str += f"{days} day(s), "
     if hours > 0:
-        time_str += f"{hours} heure(s), "
+        time_str += f"{hours} hour(s), "
     if minutes > 0:
         time_str += f"{minutes} minute(s) "
     if seconds > 0:
-        time_str += f"and {seconds} seconde(s)"
+        time_str += f"and {seconds} second(s)"
     if days == 0 and hours == 0:
-        time_str = f"{minutes} minute(s) et {seconds} seconde(s)"
+        time_str = f"{minutes} minute(s) et {seconds} second(s)"
     
     return time_str
 
 class Strava:
-    def __init__(self, access_token, min_date):
-        self.access_token = access_token
+    def __init__(self, strava_tokens: dict, min_date):
+        # API IDs
+        # self.access_token = access_token
+        # self.client_id = client_id
+        # self.client_secret = client_secret
+        # self.client_refresh = client_refresh
+        
+        self.strava_tokens = strava_tokens
+        
+        
         self.base_url = "https://www.strava.com/api/v3/"
-        self.headers = {'Authorization': f'Bearer {access_token}'}
+        self.headers = {'Authorization': f'Bearer {strava_tokens['CLIENT_ACCESS_TOKEN']}'}
         self.min_date = min_date
+    
+    def _refresh_access_token(self):
+        # toutes les heures, faire la requête de refresh, puis regarder le remaining time.
+        # Si le remaining time est inférieur à 1h, alors faire la bascule
+        # Update le .env en ajoutant le nouveau .env
+        url = f"{self.base_url}/oauth/token?client_id={self.strava_tokens['CLIENT_ID']}&client_secret={self.strava_tokens['CLIENT_SECRET']}&grant_type=refresh_token&refresh_token={self.strava_tokens['CLIENT_REFRESH_TOKEN']}"
+        response = requests.post(url=url, headers=self.headers).json()
+        if response['expires_in'] < 3600:
+            set_key('../.env', 'CLIENT_ACCESS_TOKEN', response['access_token'])
+            print('New CLIENT_ACCESS_TOKEN written !')
+            print(f'New CLIENT_ACCESS_TOKEN written ! ! It remains {response['expires_in'] / 3600} hours.')
+        else:
+            print(f'No need to update CLIENT_ACCESS_TOKEN ! It remains {seconds_to_time(response['expires_in'])}.')
+            
+        pass
+    
+    def store_access_token():
+        pass
         
         
     def __repr__(self) -> str:
