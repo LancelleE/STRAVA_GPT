@@ -1,6 +1,9 @@
 import requests
+import json
 from geopy.geocoders import Nominatim
 from dotenv import set_key
+from datetime import datetime, timedelta
+import time
 
 # Various functions, useful in the Strava class
 def get_city_from_long_lat(latitude, longitude):
@@ -38,24 +41,42 @@ def seconds_to_time(seconds):
         time_str += f"and {seconds} second(s)"
     if days == 0 and hours == 0:
         time_str = f"{minutes} minute(s) et {seconds} second(s)"
-    
     return time_str
 
+def str_date_to_timestamp(date_str):
+    # Timestamp string
+    timestamp_str = date_str
+    # Convert the timestamp string to a datetime object
+    datetime_obj = datetime.strptime(timestamp_str, '%Y-%m-%dT%H:%M:%SZ')
+    # Convert the datetime object to a Unix timestamp
+    unix_timestamp = int(time.mktime(datetime_obj.timetuple()))
+    return(unix_timestamp)
+
+def str_simple_date_to_timestamp(date_str, delta = 0):
+    # Timestamp string
+    timestamp_str = date_str
+    # Convert the timestamp string to a datetime object
+    datetime_obj = datetime.strptime(timestamp_str, '%Y-%m-%d') - timedelta(days=delta)
+    # Convert the datetime object to a Unix timestamp
+    unix_timestamp = int(time.mktime(datetime_obj.timetuple()))
+    return(unix_timestamp)
+
 class Strava:
-    def __init__(self, strava_tokens: dict, min_date):
-        # API IDs
-        # self.access_token = access_token
-        # self.client_id = client_id
-        # self.client_secret = client_secret
-        # self.client_refresh = client_refresh
-        
+    def __init__(self, strava_tokens: dict, min_date):       
         self.strava_tokens = strava_tokens
-        
-        
         self.base_url = "https://www.strava.com/api/v3/"
         self.headers = {'Authorization': f'Bearer {strava_tokens['CLIENT_ACCESS_TOKEN']}'}
         self.min_date = min_date
+        self.config_file_path = 'configuration/titre.json'
+        
+    def __repr__(self) -> str:
+        profile = self._get_profile_information()
+        return f"Currently logged on {profile['firstname']} {profile['lastname']} profile.\n"
     
+    def _load_configuration(self):
+        with open(self.config_file_path, 'r') as file:
+            return json.load(file)
+        
     def _refresh_access_token(self):
         # toutes les heures, faire la requête de refresh, puis regarder le remaining time.
         # Si le remaining time est inférieur à 1h, alors faire la bascule
@@ -64,21 +85,10 @@ class Strava:
         response = requests.post(url=url, headers=self.headers).json()
         if response['expires_in'] < 3600:
             set_key('../.env', 'CLIENT_ACCESS_TOKEN', response['access_token'])
-            print('New CLIENT_ACCESS_TOKEN written !')
-            print(f'New CLIENT_ACCESS_TOKEN written ! ! It remains {response['expires_in'] / 3600} hours.')
+            print(f'New CLIENT_ACCESS_TOKEN written ! {response['expires_in'] / 3600} remaining.')
         else:
-            print(f'No need to update CLIENT_ACCESS_TOKEN ! It remains {seconds_to_time(response['expires_in'])}.')
-            
-        pass
-    
-    def store_access_token():
-        pass
+            print(f'No need to update CLIENT_ACCESS_TOKEN ! {seconds_to_time(response['expires_in'])} remaining.')
         
-        
-    def __repr__(self) -> str:
-        profile = self._get_profile_information()
-        return f"Currently logged on {profile['firstname']} {profile['lastname']} profile."
-
     def _get_profile_information(self):
         url = self.base_url + "athlete"
         response = requests.get(url=url, headers=self.headers).json()
@@ -90,8 +100,28 @@ class Strava:
         list_of_activities = []
         for act in response:
             list_of_activities.append((act['id']))
-            
         return list_of_activities
+    
+    def transform_title(self, id_activity):
+        titre_config = self._load_configuration()
+        workout = self.get_activity_data(id_activity)
+        
+        # On récupère le bon sport
+        if workout['sport_type'] in [sport['activity_type'] for sport in titre_config]:
+            
+            sub_config = [sport['transformations'] for sport in titre_config if sport['activity_type'] == 'Run'][0]
+            activity_date = str_date_to_timestamp(workout['start_date'])
+            
+            for events in sub_config:
+                if (activity_date > str_simple_date_to_timestamp(events['event_date'], events['days_before'])) and (activity_date < str_simple_date_to_timestamp(events['event_date'])):
+                    dt_event = datetime.utcfromtimestamp(str_simple_date_to_timestamp(events['event_date']))
+                    dt_activity = datetime.utcfromtimestamp(activity_date)
+
+                    delta_days = dt_event - dt_activity
+                    new_title = f"[{events['emoji']} {events['nickname']}] {workout['name']} (J-{delta_days.days})"
+                    
+                    self.update_activity(id_activity, {'name': new_title})
+        
     
     def get_activity_data(self, id_activity):
         url = f'{self.base_url}/activities/{id_activity}?include_all_efforts=False'

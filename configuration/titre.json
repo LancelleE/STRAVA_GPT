@@ -1,19 +1,54 @@
 [
     {
-        "event": "Semi-marathon Cancale St-Malo",
-        "emoji": "🌊",
-        "event_date": "2024-08-25",
-        "distance": 21,
-        "days_before": 100,
-        "nickname": "Semi Cancale - St-Malo",
-        "activity_type": "Run"
+        "activity_type": "Run",
+        "transformations": [
+            {
+                "event": "Semi-marathon Cancale St-Malo",
+                "emoji": "🌊",
+                "event_date": "2024-08-25",
+                "distance": 21,
+                "days_before": 100,
+                "nickname": "Semi Cancale - St-Malo"
+            },
+            {
+                "event": "Semi-marathon Boulogne-Billancourt",
+                "emoji": "🏠",
+                "event_date": "2024-11-18",
+                "distance": 21,
+                "days_before": 100,
+                "nickname": "Semi de Boulbi"
+            }
+        ]
     },
     {
-        "event": "Semi-marathon Boulogne-Billancourt",
-        "emoji": "🏠",
-        "event_date": "2024-11-18",
-        "distance": 21,
-        "days_before": 100,
-        "nickname": "Semi de Boulbi"
+        "activity_type": "Badminton",
+        "transformations": [
+            {
+                "event": "",
+                "emoji": "🏸",
+                "event_date": "2099-12-31",
+                "days_before": 100000000000,
+                "nickname": "Bad Boulbi"
+            },
+            {
+                "event": "Eventuel tournoi",
+                "emoji": "🏠",
+                "event_date": "",
+                "days_before": 100,
+                "nickname": "Coupe Géante des Hauts de Seine"
+            }
+        ]
+    },
+    {
+        "activity_type": "Ride",
+        "transformations": [
+            {
+                "event": "",
+                "emoji": "🚴🏻‍♂️",
+                "event_date": "2099-12-31",
+                "days_before": 100000000000,
+                "nickname": ""
+            }
+        ]
     }
 ]
