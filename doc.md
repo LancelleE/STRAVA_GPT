@@ -12,6 +12,7 @@ Date: 2024-06
     - Si activité, alors noter : timestamp, activity_id, type (run, bad, vélo ?), changement (titre ? description ?)
     - Si refresh token, préciser
 - Définir la fréquence de Run
+    - Définir les types d'activité sur lesquels appliquer le projet
 - Construire la mécanique de pattern dans le titre
     - J-X avant un évènement, 
     - Emojis à mettre sur une période donnée en premier caractère
