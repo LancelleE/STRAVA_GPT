@@ -21,6 +21,7 @@ def exchange_authorization_code_for_tokens(client_id, client_secret, authorizati
     }
     response = requests.post(token_url, data=data)
     response.raise_for_status()
+    print(data)
     return response.json()
 
 def wait_for_authorization_code():

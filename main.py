@@ -9,12 +9,12 @@ from src.strava import Strava
 
 def main():
     # Get the first authorization code
-    # threading.Thread(target=run_flask_app).start()
-    # get_authorization_code(CLIENT_ID)
-    # authorization_code = wait_for_authorization_code()
-    # token_info = exchange_authorization_code_for_tokens(CLIENT_ID, CLIENT_SECRET, authorization_code)
-    # set_key('.env', 'CLIENT_ACCESS_TOKEN', token_info['access_token'])
-    # print(token_info['access_token'])
+    threading.Thread(target=run_flask_app).start()
+    get_authorization_code(CLIENT_ID)
+    authorization_code = wait_for_authorization_code()
+    token_info = exchange_authorization_code_for_tokens(CLIENT_ID, CLIENT_SECRET, authorization_code)
+    set_key('.env', 'CLIENT_ACCESS_TOKEN', token_info['access_token'])
+    print(token_info['access_token'])
     
     # Load logs and get the latest run, to update min_date
     # TODO
