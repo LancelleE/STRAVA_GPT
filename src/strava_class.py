@@ -1,5 +1,8 @@
 import requests
+import json
 from typing import Dict, List, Any
+from datetime import datetime, timedelta
+from dotenv import set_key
 
 # Handle authentication and token refresh
 class StravaAuth:
@@ -27,7 +30,8 @@ class StravaAuth:
             'grant_type': 'refresh_token',
             'refresh_token': self.refresh_token
         }
-        response = requests.post(url, data=data, timeout=20)
+        response = requests.post(url, data=data, timeout=20).json()
+        set_key(dotenv_path='.env',key_to_set= 'CLIENT_ACCESS_TOKEN', value_to_set=response['access_token'], quote_mode='never')
         self.access_token = response['access_token']
 
 # Tool to make API calls
@@ -68,6 +72,22 @@ class StravaAPI:
         except requests.RequestException as e:
             print(f"API request failed: {e}")
             return {}
+
+class ConfigManager:
+    def __init__(self, config_file_path: str):
+        self.config = self._load_config(config_file_path)
+
+    def _load_config(self, config_file_path: str) -> dict:
+        with open(config_file_path, 'r') as file:
+            data = json.load(file)
+        return data
+
+    def get_config_for_activity_type(self, activity_type: str) -> dict:
+        for config in self.config:
+            if config['activity_type'] == activity_type:
+                return config
+        return None
+
 
 # Deal with activities
 class ActivityManager:
@@ -114,22 +134,59 @@ class TitleTransformer:
     """
     ...
     """
+    # Load the right config for my activity
     def __init__(self, config_file_path: str):
-        self.config = self._load_configuration(config_file_path)
+        self.config_manager = ConfigManager(config_file_path)
 
-    def _load_configuration(self, config_file_path: str) -> Dict:
+    def _find_matching_transformation(self, transformations: list, activity_date: datetime) -> dict:
+        # This method finds a matching transformation based on the activity date
+        for transform in transformations:
+            event_date = datetime.strptime(transform['event_date'], '%Y-%m-%d')
+            days_before = timedelta(days=transform['days_before'])
+            if event_date - days_before <= activity_date <= event_date:
+                return transform
+        return None
+    
+    def transform_title(self, activity: dict) -> str:
         """
         ...
         """
-        # Implementation of configuration loading
-        pass
+        activity_type = activity['type']
+        activity_date = datetime.strptime(activity['start_date'], '%Y-%m-%dT%H:%M:%SZ')
+        
+        config = self.config_manager.get_config_for_activity_type(activity_type)
+        if not config:
+            return activity['name']
+        
+        transform = self._find_matching_transformation(config['transformations'], activity_date)
+        
+        new_title_parts = []
+        title = ''
 
-    def transform_title(self, activity: Dict) -> str:
-        """
-        ...
-        """
-        # Implementation of title transformation logic
-        pass
+        if transform:
+            days_to_event = (datetime.strptime(transform['event_date'], '%Y-%m-%d') - activity_date).days
+            new_title_parts.append(f"[{transform['emoji']}")
+            title += f"[{transform['emoji']}"
+            if transform['nickname']:
+                new_title_parts.append(f"{transform['nickname']}")
+                title += f" {transform['nickname']}"
+                
+            if days_to_event > 0:
+                new_title_parts.append(f"(J-{days_to_event})")
+                title += f" (J-{days_to_event})"
+            
+            title += f"] {activity['name']}"
+
+            new_title_parts.append(']')
+                
+            # if days_to_event > 0:
+            #     new_title_parts.append(f"(J-{days_to_event})")
+
+        new_title_parts.append(activity['name'])
+
+        # return "".join(new_title_parts)
+        return title
+
 
 class StravaManager:
     """

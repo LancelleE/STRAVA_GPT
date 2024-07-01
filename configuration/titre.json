@@ -24,17 +24,17 @@
         "activity_type": "Badminton",
         "transformations": [
             {
-                "event": "",
+                "event": "Bad daily",
                 "emoji": "🏸",
-                "event_date": "2099-12-31",
-                "days_before": 100000000000,
+                "event_date": "2024-12-31",
+                "days_before": 1,
                 "nickname": "Bad Boulbi"
             },
             {
                 "event": "Eventuel tournoi",
                 "emoji": "🏠",
-                "event_date": "",
-                "days_before": 100,
+                "event_date": "2024-11-18",
+                "days_before": 0,
                 "nickname": "Coupe Géante des Hauts de Seine"
             }
         ]
@@ -45,8 +45,8 @@
             {
                 "event": "",
                 "emoji": "🚴🏻‍♂️",
-                "event_date": "2099-12-31",
-                "days_before": 100000000000,
+                "event_date": "2024-12-31",
+                "days_before": 300,
                 "nickname": ""
             }
         ]
